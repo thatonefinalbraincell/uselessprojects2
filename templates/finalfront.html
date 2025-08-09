@@ -296,7 +296,7 @@
                 <!-- Initial welcome message from Sassy Bot -->
                 <div class="chat-message ai">
                     <div class="message-bubble ai">
-                        <p>OMG! Spill it, babe. I am literally on the edge of my seat! ☕️</p>
+                        <p>OMG! Spill it, babe. I am literally on the edge of my seat! ☕</p>
                     </div>
                 </div>
             </div>
@@ -332,6 +332,10 @@
     </div>
 
     <script>
+        // Set the base URL for your Flask backend.
+        // If you are running Flask on a different port or domain, change this line.
+        const backendBaseUrl = "http://localhost:5000";
+
         // Common functions for modal control
         function closeGiveGossipModal() { document.getElementById("give-gossip-modal").style.display = "none"; }
         function closeGetGossipModal() { document.getElementById("get-gossip-modal").style.display = "none"; }
@@ -348,14 +352,17 @@
             
             const bubbleDiv = document.createElement("div");
             bubbleDiv.classList.add("message-bubble", role);
-            bubbleDiv.innerHTML = `<p>${text}</p>`;
+            
+            const p = document.createElement("p");
+            p.textContent = text;
+            bubbleDiv.appendChild(p);
 
             messageDiv.appendChild(bubbleDiv);
             chatLog.appendChild(messageDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
-        // --- Spill the Tea Chatbot Logic (Connected to gossiptaker.py) ---
+        // --- Spill the Tea Chatbot Logic (Connected to the unified backend) ---
         const giveGossipModal = document.getElementById("give-gossip-modal");
         const giveGossipChatInput = document.getElementById("give-gossip-input");
         const giveGossipSendBtn = document.getElementById("give-gossip-send-btn");
@@ -383,8 +390,8 @@
             chatLog.scrollTop = chatLog.scrollHeight;
 
             try {
-                // IMPORTANT: Make sure the port here (e.g., 5000) matches the port where gossiptaker.py is running.
-                const response = await fetch('http://127.0.0.1:5000/chat', {
+                // Fetch call to the specific /spill_tea route using the absolute URL
+                const response = await fetch(`${backendBaseUrl}/spill_tea`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: userMessage })
@@ -412,7 +419,7 @@
         });
 
 
-        // --- Get the Scoop Chatbot Logic (Connected to gossipgiver.py) ---
+        // --- Get the Scoop Chatbot Logic (Connected to the unified backend) ---
         const getGossipModal = document.getElementById("get-gossip-modal");
         const getGossipChatInput = document.getElementById("get-gossip-input");
         const getGossipSendBtn = document.getElementById("get-gossip-send-btn");
@@ -440,8 +447,8 @@
             chatLog.scrollTop = chatLog.scrollHeight;
 
             try {
-                // IMPORTANT: Make sure the port here (e.g., 5001) matches the port where gossipgiver.py is running.
-                const response = await fetch('http://127.0.0.1:5001/chat', {
+                // Fetch call to the specific /get_scoop route using the absolute URL
+                const response = await fetch(`${backendBaseUrl}/get_scoop`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: userMessage })
