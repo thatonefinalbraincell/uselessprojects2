@@ -267,14 +267,14 @@
         <p class="subtitle">You know you love me. XOXO, Gossip Girl.</p>
         
         <div class="options-grid">
-            <!-- Give Gossip Option -->
+            <!-- Spill the Tea Option -->
             <div id="give-gossip-card" class="option-card" onclick="openGiveGossipModal()">
                 <i class="fa-solid fa-feather"></i>
                 <h3>Spill the Tea</h3>
                 <p>Have something to share? Anonymity is guaranteed. The world is waiting.</p>
             </div>
             
-            <!-- Get Gossip Option (now a chatbot) -->
+            <!-- Get the Scoop Option -->
             <div id="get-gossip-card" class="option-card" onclick="openGetGossipModal()">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <h3>Get the Scoop</h3>
@@ -287,16 +287,16 @@
         </div>
     </div>
 
-    <!-- Give Gossip Chatbot Modal -->
+    <!-- Spill the Tea Chatbot Modal -->
     <div id="give-gossip-modal" class="modal">
         <div class="modal-content chat-modal-content">
             <span class="close-btn" onclick="closeGiveGossipModal()">&times;</span>
             <h3>Spill the Tea, Darling</h3>
             <div id="give-gossip-chat-log" class="chat-log">
-                <!-- Initial welcome message from Gossip Girl -->
+                <!-- Initial welcome message from Sassy Bot -->
                 <div class="chat-message ai">
                     <div class="message-bubble ai">
-                        <p>Ready to spill? Give me the full scoop, I'm all ears. You know you can trust me with your secrets... I never tell. XOXO.</p>
+                        <p>OMG! Spill it, babe. I am literally on the edge of my seat! ☕️</p>
                     </div>
                 </div>
             </div>
@@ -309,16 +309,16 @@
         </div>
     </div>
 
-    <!-- Get Gossip Chatbot Modal -->
+    <!-- Get the Scoop Chatbot Modal -->
     <div id="get-gossip-modal" class="modal">
         <div class="modal-content chat-modal-content">
             <span class="close-btn" onclick="closeGetGossipModal()">&times;</span>
             <h3>Chat with Gossip Girl</h3>
             <div id="get-gossip-chat-log" class="chat-log">
-                <!-- Initial welcome message from Gossip Girl -->
+                <!-- Initial welcome message from Relatable Bot -->
                 <div class="chat-message ai">
                     <div class="message-bubble ai">
-                        <p>Hello, Upper East Sider. It's Gossip Girl here. What's on your mind? Don't be shy, darling.</p>
+                        <p>Hey there, what's on your mind? What's the latest rumor you want to know about?</p>
                     </div>
                 </div>
             </div>
@@ -332,7 +332,7 @@
     </div>
 
     <script>
-        // Common variables and functions
+        // Common functions for modal control
         function closeGiveGossipModal() { document.getElementById("give-gossip-modal").style.display = "none"; }
         function closeGetGossipModal() { document.getElementById("get-gossip-modal").style.display = "none"; }
         
@@ -355,93 +355,10 @@
             chatLog.scrollTop = chatLog.scrollHeight;
         }
 
-        // --- Get Gossip Chatbot Logic (Remains unchanged, still uses the client-side API call) ---
-        const getGossipModal = document.getElementById("get-gossip-modal");
-        const getGossipChatInput = document.getElementById("get-gossip-input");
-        const getGossipSendBtn = document.getElementById("get-gossip-send-btn");
-
-        let getGossipChatHistory = [{
-            role: "user",
-            parts: [{
-                text: "Act as Gossip Girl from the TV show. Be sassy, dramatic, and respond to the user's questions about gossip. Start by saying 'Hello, Upper East Sider. It's Gossip Girl here. What's on your mind? Don't be shy, darling.' Keep all your responses in this persona."
-            }]
-        }];
-
-        function openGetGossipModal() {
-            getGossipModal.style.display = "flex";
-            const chatLog = document.getElementById("get-gossip-chat-log");
-            chatLog.scrollTop = chatLog.scrollHeight;
-        }
-
-        async function sendGetGossipMessage() {
-            const userMessage = getGossipChatInput.value.trim();
-            if (userMessage === "") return;
-
-            addMessage("get-gossip-chat-log", userMessage, "user");
-            getGossipChatInput.value = "";
-            getGossipChatInput.disabled = true;
-            getGossipSendBtn.disabled = true;
-
-            const typingIndicator = document.createElement("p");
-            typingIndicator.classList.add("typing-indicator");
-            typingIndicator.textContent = "Gossip Girl is typing...";
-            const chatLog = document.getElementById("get-gossip-chat-log");
-            chatLog.appendChild(typingIndicator);
-            chatLog.scrollTop = chatLog.scrollHeight;
-
-            try {
-                getGossipChatHistory.push({ role: "user", parts: [{ text: userMessage }] });
-                const payload = { contents: getGossipChatHistory };
-                const apiKey = ""; // API key is handled by the environment
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-                // The fetchWithExponentialBackoff function from previous versions is not shown here
-                // but would be used to handle API calls with retries. For this context, a simple
-                // fetch call is used to show the core logic.
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await response.json();
-
-                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
-                    const aiResponse = result.candidates[0].content.parts[0].text;
-                    getGossipChatHistory.push({ role: "model", parts: [{ text: aiResponse }] });
-                    
-                    chatLog.removeChild(typingIndicator);
-                    addMessage("get-gossip-chat-log", aiResponse, "ai");
-                } else {
-                    throw new Error("Invalid API response format.");
-                }
-
-            } catch (error) {
-                console.error("Error communicating with the API:", error);
-                chatLog.removeChild(typingIndicator);
-                addMessage("get-gossip-chat-log", "Spotted: A technical difficulty. Seems even Gossip Girl's servers need a moment. Try again, darling.", "ai");
-            } finally {
-                getGossipChatInput.disabled = false;
-                getGossipSendBtn.disabled = false;
-                getGossipChatInput.focus();
-            }
-        }
-
-        getGossipSendBtn.addEventListener("click", sendGetGossipMessage);
-        getGossipChatInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") { sendGetGossipMessage(); }
-        });
-
-
-        // --- Give Gossip Chatbot Logic (Now connected to your Flask backend) ---
+        // --- Spill the Tea Chatbot Logic (Connected to gossiptaker.py) ---
         const giveGossipModal = document.getElementById("give-gossip-modal");
         const giveGossipChatInput = document.getElementById("give-gossip-input");
         const giveGossipSendBtn = document.getElementById("give-gossip-send-btn");
-        
-        let giveGossipChatHistory = [{
-            role: "ai",
-            text: "Ready to spill? Give me the full scoop, I'm all ears. You know you can trust me with your secrets... I never tell. XOXO."
-        }];
         
         function openGiveGossipModal() {
             giveGossipModal.style.display = "flex";
@@ -460,15 +377,14 @@
 
             const typingIndicator = document.createElement("p");
             typingIndicator.classList.add("typing-indicator");
-            typingIndicator.textContent = "Gossip Girl is typing...";
+            typingIndicator.textContent = "Sassy Bot is typing...";
             const chatLog = document.getElementById("give-gossip-chat-log");
             chatLog.appendChild(typingIndicator);
             chatLog.scrollTop = chatLog.scrollHeight;
 
             try {
-                // We no longer build the chat history here, as the Flask backend handles the prompt and state.
-                // We now send a simple JSON object to the Flask endpoint.
-                const response = await fetch('/chat', {
+                // IMPORTANT: Make sure the port here (e.g., 5000) matches the port where gossiptaker.py is running.
+                const response = await fetch('http://127.0.0.1:5000/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: userMessage })
@@ -482,7 +398,7 @@
             } catch (error) {
                 console.error("Error communicating with the Flask backend:", error);
                 chatLog.removeChild(typingIndicator);
-                addMessage("give-gossip-chat-log", "Spotted: A technical difficulty. Seems even Gossip Girl's servers need a moment. Try again, darling.", "ai");
+                addMessage("give-gossip-chat-log", "Oops, my server's down! Try again later.", "ai");
             } finally {
                 giveGossipChatInput.disabled = false;
                 giveGossipSendBtn.disabled = false;
@@ -493,6 +409,64 @@
         giveGossipSendBtn.addEventListener("click", sendGiveGossipMessage);
         giveGossipChatInput.addEventListener("keypress", (e) => {
             if (e.key === "Enter") { sendGiveGossipMessage(); }
+        });
+
+
+        // --- Get the Scoop Chatbot Logic (Connected to gossipgiver.py) ---
+        const getGossipModal = document.getElementById("get-gossip-modal");
+        const getGossipChatInput = document.getElementById("get-gossip-input");
+        const getGossipSendBtn = document.getElementById("get-gossip-send-btn");
+        
+        function openGetGossipModal() {
+            getGossipModal.style.display = "flex";
+            const chatLog = document.getElementById("get-gossip-chat-log");
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        async function sendGetGossipMessage() {
+            const userMessage = getGossipChatInput.value.trim();
+            if (userMessage === "") return;
+
+            addMessage("get-gossip-chat-log", userMessage, "user");
+            getGossipChatInput.value = "";
+            getGossipChatInput.disabled = true;
+            getGossipSendBtn.disabled = true;
+
+            const typingIndicator = document.createElement("p");
+            typingIndicator.classList.add("typing-indicator");
+            typingIndicator.textContent = "Relatable Bot is typing...";
+            const chatLog = document.getElementById("get-gossip-chat-log");
+            chatLog.appendChild(typingIndicator);
+            chatLog.scrollTop = chatLog.scrollHeight;
+
+            try {
+                // IMPORTANT: Make sure the port here (e.g., 5001) matches the port where gossipgiver.py is running.
+                const response = await fetch('http://127.0.0.1:5001/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userMessage })
+                });
+                
+                const data = await response.json();
+                const aiResponse = data.reply;
+                    
+                chatLog.removeChild(typingIndicator);
+                addMessage("get-gossip-chat-log", aiResponse, "ai");
+
+            } catch (error) {
+                console.error("Error communicating with the Flask backend:", error);
+                chatLog.removeChild(typingIndicator);
+                addMessage("get-gossip-chat-log", "My server's having a bad day! Maybe check back later?", "ai");
+            } finally {
+                getGossipChatInput.disabled = false;
+                getGossipSendBtn.disabled = false;
+                getGossipChatInput.focus();
+            }
+        }
+
+        getGossipSendBtn.addEventListener("click", sendGetGossipMessage);
+        getGossipChatInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") { sendGetGossipMessage(); }
         });
     </script>
 </body>
